@@ -1,0 +1,93 @@
+//inclusão de bibliotecas
+#include "heltec.h"
+#include "DHTesp.h"
+
+#define BAND    915E6  //Escolha a frequência
+
+DHTesp dht;
+
+String packet ;
+float currentTemp;
+float currentHumidity;
+
+/* Protótipo da função */
+void getTemp();
+void sendPacket();
+
+/*
+  Nome da função: getTemp
+  objetivo: ler a temperatura e atibiu a variável currentTemp.
+*/
+void getTemp()
+{
+  float temperature = dht.getTemperature();
+  float humidity = dht.getHumidity();
+
+  if (temperature != currentTemp) { //Verifica se houve mudança na temperatura
+    currentTemp = temperature;
+    
+  }
+  
+  if (humidity != currentTemp) { //Verifica se houve mudança na temperatura
+    currentHumidity = humidity;
+    
+  }
+  delay(1000);
+}
+
+/*
+  Nome da função: sendPacket
+  objetivo: envia a temperatura via LoRa armazenada na variável currentTemp.
+*/
+void sendPacket()
+{
+  LoRa.beginPacket();
+  LoRa.print(currentTemp);//trocar + 
+  LoRa.print(",");
+  LoRa.print(currentHumidity);
+
+  LoRa.endPacket();
+}
+
+/******************* função principal (setup) *********************/
+void setup()
+{
+  String temperatureDisplay ="Temperature: " + (String)currentTemp +  "°C";
+  String humidityDisplay = "Humidity: " + (String)currentHumidity + "%";
+ 
+  pinMode(LED,OUTPUT); //inicializa o LED
+  
+  Heltec.begin(true /*Habilita o Display*/, true /*Heltec.Heltec.Heltec.LoRa Disable*/, true /*Habilita debug Serial*/, true /*Habilita o PABOOST*/, BAND /*Frequência BAND*/);
+ 
+  Heltec.display->init();
+  Heltec.display->flipScreenVertically();  
+  Heltec.display->setFont(ArialMT_Plain_16);
+  Heltec.display->clear();
+  // Prepare to display temperature
+  Heltec.display->drawString(0, 0, temperatureDisplay);
+  // Prepare to display humidity
+  Heltec.display->drawString(0, 12, humidityDisplay);
+  Heltec.display->display();
+  delay(1000);
+  
+  dht.setup(17, DHTesp::DHT11); //inicializa o DHT no pino 17
+   
+  currentTemp = dht.getTemperature();
+  currentHumidity = dht.getHumidity();
+}
+
+/******************* função em loop (loop) *********************/
+void loop()
+{
+  getTemp(); //Ler temperatura
+  
+  Heltec.display->clear();
+  Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
+  Heltec.display->setFont(ArialMT_Plain_16);
+  
+  Heltec.display->drawString(0, 0, (String)currentTemp);
+  Heltec.display->drawString(0, 12, (String)currentHumidity);
+  Heltec.display->display();
+
+  sendPacket(); //Envia temperatura
+}

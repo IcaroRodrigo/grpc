@@ -1,0 +1,16 @@
+version: "3.3"
+
+services:
+  grafana:
+    build: .
+    image: grafanamasa:latest
+    restart: always
+    ports:
+      - "3132:3000"
+    volumes:
+      - ./grafana-storage:/var/lib/grafana
+volumes:
+  grafana-storage:
+    external: true
+
+

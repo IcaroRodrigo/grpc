@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "br.com.icaro.grpc.v1.user";
+
+package br.com.icaro.grpc.v1.user;
+
+service UserService {
+  rpc CreateUser(UserRequest) returns (UserResponse) {}
+  rpc GetUser(EmptyRequest) returns (UserResponse) {}
+  rpc getAllUsers(EmptyRequest) returns (UserListResponse) {}
+  rpc getAllUsersStream(EmptyRequest) returns (stream UserResponse) {}
+}
+
+message EmptyRequest {}
+
+message UserRequest {
+  string name = 1;
+  string email = 2;
+}
+
+message UserResponse {
+  int64 id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message UserListResponse {
+  repeated UserResponse users = 1;
+}

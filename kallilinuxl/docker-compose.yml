@@ -1,0 +1,9 @@
+version: '3'
+services:
+  kali:
+    image: kali-linux-custom
+    build:
+      context: .
+    volumes:
+      - /path/no/host:/home/kaliuser
+    tty: true
